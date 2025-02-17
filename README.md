@@ -1,4 +1,4 @@
-# GEHC Telemetry monitoring
+# Telemetry monitoring
 
 This project aims to provide capabilities to provide system monitoring using Prometheus, Elasticsearch, Kibana, Zipkin and Grafana by providing Telemetry agents which can push the metrics to Prometheus, traces to Zipkin and logs to Elasticsearch for further monitoring and observation.
 

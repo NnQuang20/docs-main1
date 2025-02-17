@@ -1,0 +1,79 @@
+services:
+  grafana_db:
+    image: mysql:8.0
+    container_name: grafana_db
+    restart: unless-stopped
+    user: "999:999"
+    environment:
+      MYSQL_ROOT_PASSWORD: grafana_root
+      MYSQL_DATABASE: grafana
+      MYSQL_USER: grafana
+      MYSQL_PASSWORD: grafana
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --innodb_monitor_enable=all
+      - --max-connections=1001
+    volumes:
+      - ./grafana_db/data:/var/lib/mysql
+      - ./grafana_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - monitoring_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    ports:
+      - "3306:3306"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    user: "65534:65534"
+    volumes:
+      - ./prometheus/config:/etc/prometheus
+      - ./prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-remote-write-receiver'
+    networks:
+      - monitoring_network
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    container_name: grafana
+    restart: unless-stopped
+    user: "472:472"
+    depends_on:
+      grafana_db:
+        condition: service_healthy
+    environment:
+      GF_DATABASE_TYPE: mysql
+      GF_DATABASE_HOST: grafana_db
+      GF_DATABASE_NAME: grafana
+      GF_DATABASE_USER: grafana
+      GF_DATABASE_PASSWORD: grafana
+      GF_DATABASE_MAX_OPEN_CONN: 300
+      GF_PATHS_CONFIG: /etc/grafana/grafana.ini
+      GF_PATHS_DATA: /var/lib/grafana
+      GF_PATHS_LOGS: /var/log/grafana
+    volumes:
+      - ./grafana/data:/var/lib/grafana:rw  # Added :Z for SELinux
+      - ./grafana/config:/etc/grafana:rw  # Added :Z and made read-write
+      - ./grafana/logs:/var/log/grafana:rw
+    networks:
+      - monitoring_network
+    ports:
+      - "3000:3000"
+
+networks:
+  monitoring_network:
+    driver: bridge

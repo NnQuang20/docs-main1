@@ -1,0 +1,36 @@
+services:
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    restart: unless-stopped
+    environment:
+      - STORAGE_TYPE=elasticsearch
+      # Point the zipkin at the storage backend
+      - ES_HOSTS=http://13.124.176.61:9200
+      # Uncomment to see requests to and from elasticsearch
+      - ES_HTTP_LOGGING=BODY
+      - ES_USERNAME=elastic
+      - ES_PASSWORD=admin123
+    
+
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - 9411:9411
+    networks:
+      - monitoring_network
+
+  dependencies:
+    image: openzipkin/zipkin-dependencies
+    container_name: dependencies
+    entrypoint: crond -f
+    restart: unless-stopped
+    environment:
+      - STORAGE_TYPE=elasticsearch
+      - ES_HOSTS=http://13.124.176.61:9200
+      - ES_USERNAME=elastic
+      - ES_PASSWORD=admin123
+    networks:
+      - monitoring_network
+networks:
+  monitoring_network:
+    driver: bridge

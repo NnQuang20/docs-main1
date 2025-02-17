@@ -1,0 +1,2 @@
+ --unhandled-rejections=warn
+--dns-result-order=ipv4first

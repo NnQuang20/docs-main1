@@ -1,0 +1,38 @@
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest  # Official image source
+    container_name: cadvisor
+    privileged: true
+    command:
+      - --housekeeping_interval=10s
+      - --docker_only=true
+      - --raw_cgroup_prefix_whitelist=/docker
+    ports:
+      - "8080:8080"
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /dev/disk/:/dev/disk:ro
+    environment:
+      - CADVISOR_IGNORE_MOUNTED_ROOT=true
+    restart: unless-stopped
+    networks:
+      - monitoring_network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - monitoring_network
+    restart: unless-stopped
+networks:
+  monitoring_network:
+    driver: bridge

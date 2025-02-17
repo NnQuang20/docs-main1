@@ -1,0 +1,8 @@
+docker run --name es01 --net elastic -p 9201:9200 -d --restart unless-stopped -e "discovery.type=single-node" -v /PATH/to/config:/usr/share/elasticsearch/config -v /PATH/to/data:/usr/share/elasticsearch/data elasticsearch:7.17.18
+
+curl -X GET "localhost:9201/_cat/nodes?v=true&pretty"
+
+docker run --name kibana --net elastic -p 5602:5601 -d -e "ELASTICSEARCH_HOSTS=http://es01:9200" -v /PATH/to/config:/usr/share/kibana/config -v /PATH/to/data:/usr/share/kibana/data kibana:7.17.18
+
+
+

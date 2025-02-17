@@ -1,0 +1,5 @@
+CPU Percentage:-
+
+sum by(groupname) (rate(namedprocess_namegroup_cpu_seconds_total{job=~"$job"}[2m] ) * 100)
+
+topk(5, sum by(groupname) (rate(namedprocess_namegroup_cpu_seconds_total{job=~"$job"}[2m] ) * 100))

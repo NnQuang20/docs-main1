@@ -4,7 +4,7 @@ This project aims to provide capabilities to provide system monitoring using Pro
 
 ## Architecture
 
-The architecture of GEHC Telemetry monitoring system include multiple databases like Prometheus,InfluxDB and Elasticsearch as well running in the centralized server (_Eagle1_). The data is sent to the EAGLE1 server using the OTEL Collector agent and Fluent-bit for logs.
+The architecture of  Telemetry monitoring system include multiple databases like Prometheus,InfluxDB and Elasticsearch as well running in the centralized server (_Eagle1_). The data is sent to the EAGLE1 server using the OTEL Collector agent and Fluent-bit for logs.
 
 
 <img src="doc/Architecture.PNG"  width=800> 

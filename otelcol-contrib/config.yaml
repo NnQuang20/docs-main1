@@ -1,0 +1,99 @@
+extensions:
+  health_check:
+  pprof:
+    endpoint: 0.0.0.0:1777
+  zpages:
+    endpoint: 0.0.0.0:55679
+  
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+        endpoint: localhost:4318
+  prometheus:
+    config:
+      scrape_configs:
+      - job_name: 'otel-collector'
+        scrape_interval: 10s
+        static_configs:
+        - targets: ['0.0.0.0:8888']
+        relabel_configs:
+          - target_label: 'instance'
+            replacement: "system-hostname"
+      - job_name: 'node-exporter'
+        scrape_interval: 10s
+        static_configs:
+        - targets: ['0.0.0.0:9100']
+        relabel_configs:
+          - target_label: 'instance'
+            replacement: "system-hostname"
+      - job_name: 'process-exporter'
+        scrape_interval: 10s
+        static_configs:
+        - targets: ['0.0.0.0:9256']
+        relabel_configs:
+          - target_label: 'instance'
+            replacement: "system-hostname"
+      - job_name: 'petclinic'
+        scrape_interval: 10s
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+        - targets: ['localhost:8080']
+        relabel_configs:
+          - target_label: 'instance'
+            replacement: "system-hostname"
+
+  fluentforward:
+    endpoint: localhost:8006
+
+  zipkin:
+    endpoint: localhost:9411
+
+processors:
+  batch:
+  resource:
+   attributes:
+   - key: hostname
+     value: system-hostname
+     action: insert
+
+exporters:
+  debug:
+    verbosity: detailed
+
+  prometheusremotewrite:
+    endpoint: http://13.124.176.61:9090/api/v1/write
+    remote_write_queue:
+      enabled: false
+
+  zipkin:
+    endpoint: http://13.124.176.61:9411/api/v2/spans
+
+  elasticsearch:
+    endpoints: http://13.124.176.61:9200
+    traces_index: otel-traces
+    logs_index: otel-logs
+    user: elastic
+    password: admin123
+service:
+
+  pipelines:
+
+    traces:
+      receivers: [zipkin]
+      processors: [batch, resource]
+      exporters: [zipkin]
+
+    metrics:
+      receivers: [prometheus]
+      processors: [batch, resource]
+      exporters: [prometheusremotewrite]
+
+    logs:
+      receivers: [fluentforward]
+      processors: [batch, resource]
+      exporters: [elasticsearch]
+
+  extensions: [health_check, pprof, zpages]

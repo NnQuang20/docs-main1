@@ -1,0 +1,6 @@
+process_names:
+    # This process group name template concatenates several process properties,
+    # separated by a tab character.
+  - name: "{{.PID}}\t{{.Comm}}\t{{.ExeFull}}\t{{.Matches.cmdline}}"
+    cmdline:
+      - '(?P<cmdline>.+)'

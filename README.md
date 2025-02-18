@@ -4,13 +4,13 @@ This project aims to provide capabilities to provide system monitoring using Pro
 
 ## Architecture
 
-The architecture of  Telemetry monitoring system include multiple databases like Prometheus,InfluxDB and Elasticsearch as well running in the centralized server (_Eagle1_). The data is sent to the EAGLE1 server using the OTEL Collector agent and Fluent-bit for logs.
+The architecture of  Telemetry monitoring system include multiple databases like Prometheus,InfluxDB and Elasticsearch as well running in the centralized server (__). The data is sent to the  server using the OTEL Collector agent and Fluent-bit for logs.
 
 
 <img src="doc/Architecture.PNG"  width=800> 
 
 # OTEL Collector
-OTEL Collector is installed on the Target system and used as an agent to collect the data and sent to the EAGLE1 server.
+OTEL Collector is installed on the Target system and used as an agent to collect the data and sent to the  server.
 
 <img src="doc/OTEL-Collector-arch.PNG"  width=800> 
 
